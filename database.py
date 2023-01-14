@@ -1,4 +1,5 @@
 import sqlite3
+import logging
 
 class DatabaseManager:
     def __init__(self, path):
@@ -33,14 +34,14 @@ class DatabaseManager:
         """
         self._execute(statement)
     
-    def add(self, table_name, data: dict):
+    def add(self, table_name, data):
         placeholders = ', '.join("?" * len(data))
-        column_names = data.keys()
-        column_values = data.values()
+        column_names = ', '.join(data.keys())
+        column_values = tuple(data.values())
 
         self._execute(
             f"""
-            INSERT INTO {table_name}({", ".join(column_names)})
+            INSERT INTO {table_name}({column_names})
             VALUES ({placeholders});
             """,
             column_values
@@ -53,7 +54,7 @@ class DatabaseManager:
             DELETE FROM {table_name}
             WHERE {' AND '.join(placeholders)}
             """,
-            criterial.values()
+            tuple(criterial.values())
         )
     
     def select(self, table_name, criterial=None, order_by=None):
