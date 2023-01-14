@@ -1,4 +1,4 @@
-# Bark
+# Bark - A CLI Bookmarking Application
 
 Bark is a command-line bookmarking application. Bark allows you to create bookmarks that will be made up of a few pieces of information: 
 
