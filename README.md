@@ -13,6 +13,7 @@ Bark is a command-line bookmarking application. Bark allows you to create bookma
 * Add bookmark manually
 * Delete a bookmark by its id
 * Query a bookmark
+* Import bookmarks from GitHub stars
 
 ## Reference
 
