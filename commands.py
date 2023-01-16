@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from database import DatabaseManager
 from datetime import datetime
 import sys
@@ -5,8 +6,13 @@ import requests
 
 db = DatabaseManager('bookmark.db')
 
-class CreateBookmarksTableCommand:
-    def execute(self):
+class Command(ABC):
+    @abstractmethod
+    def execute(self, data):
+        pass
+
+class CreateBookmarksTableCommand(Command):
+    def execute(self, data=None):
         db.create_table(
             'bookmarks',
             {
@@ -18,29 +24,29 @@ class CreateBookmarksTableCommand:
             }
         )
 
-class AddBookmarkCommand:
-    def execute(self, data, timestamp=None):
-        data['date_added'] = timestamp or datetime.utcnow().isoformat()
+class AddBookmarkCommand(Command):
+    def execute(self, data):
+        data['date_added'] = data.get('date_added', datetime.utcnow().isoformat())
         db.add('bookmarks', data)
         return 'Bookmark added!'
 
-class ListBookmarksCommand:
+class ListBookmarksCommand(Command):
     def __init__(self, order_by='date_added'):
         self.order_by = order_by
     
-    def execute(self):
+    def execute(self, data=None):
         return db.select('bookmarks', order_by=self.order_by).fetchall()
 
-class DeleteBookmarkCommand:
-    def execute(self, id):
-        db.delete("bookmarks", {"id": id})
+class DeleteBookmarkCommand(Command):
+    def execute(self, data):
+        db.delete("bookmarks", {"id": data})
         return "Bookmark deleted!"
 
-class QuitCommand:
-    def execute(self):
+class QuitCommand(Command):
+    def execute(self, data=None):
         sys.exit()
 
-class ImportGitHubStarsCommand:
+class ImportGitHubStarsCommand(Command):
     def _extract_bookmark_info(self, repo):
         return {
             "title": repo['name'],
@@ -76,9 +82,13 @@ class ImportGitHubStarsCommand:
                     timestamp = None
                 
                 bookmark_imported += 1
+
+                bookmark_data = self._extract_bookmark_info(repo)
+                if timestamp:
+                    bookmark_data['date_added'] = timestamp
+                
                 AddBookmarkCommand().execute(
-                    data=self._extract_bookmark_info(repo),
-                    timestamp=timestamp
+                    data=bookmark_data
                 )
             
         return f'Imported {bookmark_imported} bookmarks from starred repos'
