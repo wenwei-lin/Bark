@@ -28,7 +28,7 @@ class Option:
                 formatted_result = result
 
         if success:
-            print(self.success_message.format(result=formatted_result))
+            print(self.success_message.format(result=result))
 
     def __str__(self) -> str:
         return self.name
@@ -123,7 +123,6 @@ def loop():
 
 
 if __name__ == "__main__":
-    commands.CreateBookmarksTableCommand().execute()
 
     while True:
         loop()
